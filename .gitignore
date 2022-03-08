@@ -3,3 +3,4 @@ datasets/
 .vscode
 datasets.rar
 code/.env
+code/lyrics.db
