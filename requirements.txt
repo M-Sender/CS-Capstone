@@ -1,0 +1,11 @@
+pandas
+numpy
+matplotlib
+seaborn
+scipy
+functools
+dotenv
+sqlite3
+nltk
+spacy
+spacytextblob.spacytextblob
