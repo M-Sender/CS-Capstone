@@ -1,8 +1,10 @@
-from dash import Dash, html, dcc
+from dash import Dash, html, dcc, Input, Output
+import os
 import plotly.express as px
 import pandas as pd
 import dash_bootstrap_components as dbc
 app = Dash(__name__,external_stylesheets=[dbc.themes.BOOTSTRAP])
+server = app.server
 df = pd.read_csv('../datasets/covid_US_full_by_day.csv')
 
 #def make_bar(x,y,)
