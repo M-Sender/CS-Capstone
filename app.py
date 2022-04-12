@@ -5,7 +5,7 @@ import pandas as pd
 import dash_bootstrap_components as dbc
 app = Dash(__name__,external_stylesheets=[dbc.themes.BOOTSTRAP])
 server = app.server
-df = pd.read_csv('../datasets/covid_US_full_by_day.csv')
+df = pd.read_csv('datasets/covid_US_full_by_day.csv')
 
 #def make_bar(x,y,)
 
