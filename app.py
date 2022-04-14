@@ -38,6 +38,21 @@ def heading(text,style='heading'):
     return html.H2(text, style=css_dict[style])
 def paragraph(text,style='paragraph'):
     return html.P(text, style=css_dict[style])
+metricExpl = {
+    'vader':'Vader Sentiment Score',
+    'date':'Date',
+    'polarity':'Polarity',
+    'dancibility':'Dancibility',
+    'subjectivity':'Subjectivity',
+    'vader_compound':'Vader Compound',
+    'vader_neg':'Vader Negative',
+    'vader_neu':'Vader Neutral',
+    'vader_pos':'Vader Positive',
+    'subjectivity':'Subjectivity',
+    'valence':'Valence',
+    'tempo':'Tempo',
+    
+}
 app.layout = html.Div(children=[
     
     dbc.Row(html.Div(children=[
@@ -48,6 +63,7 @@ app.layout = html.Div(children=[
     html.Div([dcc.Dropdown(df.columns,id='yaxis',value='vader')],style={'padding-top':'2%','color':'black'}),
     html.Div([dcc.Dropdown(df.columns,id='xaxis',value='date')],style={'padding-top':'2%','color':'black'}),
     html.Div([dcc.RadioItems(id='graphType',options=[{'label':'Line','value':'line'},{'label':'scatter','value':'scatter'}],value='line')],style={'padding-top':'2%','color':'white'}),
+    html.Div(id='metricText',style={'padding-top':'2%','color':'white'}),
     dcc.Graph(id='graph',style={'padding-top':'2%','color':'black'}),
     
     #dbc.Row(html.Div(children=arr,)),
@@ -64,7 +80,14 @@ def update_graph(xaxis_name='date', yaxis_name='vader', graphType='line'):
         return px.line(df, x=xaxis_name, y=yaxis_name,height=500,width=800)
     elif graphType=='scatter':
         return px.scatter(df, x=xaxis_name, y=yaxis_name,height=500,width=800)
-                        
+@app.callback(
+    Output('metricText', 'children'),
+    [Input('xaxis', 'value'),
+     Input('yaxis', 'value')]
+)
+def update_text(xaxis_name='date', yaxis_name='vader'):
+    retStr = '{xaxis} is being graphed on the x-axis and is displaying the {xaxis_exp}. On the y-axis, {yaxis} is being graphed and is displaying the {yaxis_exp}'.format(xaxis=xaxis_name[0].upper()+xaxis_name[1:],xaxis_exp=metricExpl[xaxis_name],yaxis=yaxis_name,yaxis_exp=metricExpl[yaxis_name])
+    return   retStr
 
 if __name__ ==  '__main__':
     app.run_server(debug=True)
