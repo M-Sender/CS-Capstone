@@ -47,6 +47,7 @@ app.layout = html.Div(children=[
     ]),className='text-center',style={'padding-top':'2%','color':'white'}),
     html.Div([dcc.Dropdown(df.columns,id='yaxis',value='vader')],style={'padding-top':'2%','color':'black'}),
     html.Div([dcc.Dropdown(df.columns,id='xaxis',value='date')],style={'padding-top':'2%','color':'black'}),
+    html.Div([dcc.RadioItems(id='graphType',options=[{'label':'Line','value':'line'},{'label':'scatter','value':'scatter'}],value='line')],style={'padding-top':'2%','color':'white'}),
     dcc.Graph(id='graph',style={'padding-top':'2%','color':'black'}),
     
     #dbc.Row(html.Div(children=arr,)),
@@ -56,9 +57,13 @@ app.layout = html.Div(children=[
 @app.callback(
     Output('graph', 'figure'),
     [Input('xaxis', 'value'),
-     Input('yaxis', 'value')])
-def update_graph(xaxis_name='date', yaxis_name='vader'):
-    return px.line(df, x=xaxis_name, y=yaxis_name,height=500,width=800)
+     Input('yaxis', 'value'),
+     Input('graphType', 'value')])
+def update_graph(xaxis_name='date', yaxis_name='vader', graphType='line'):
+    if graphType=='line':
+        return px.line(df, x=xaxis_name, y=yaxis_name,height=500,width=800)
+    elif graphType=='scatter':
+        return px.scatter(df, x=xaxis_name, y=yaxis_name,height=500,width=800)
                         
 
 if __name__ ==  '__main__':
