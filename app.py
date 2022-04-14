@@ -45,12 +45,20 @@ app.layout = html.Div(children=[
         dbc.Row(html.H2(children='Sam Broth and Max Sender')),
         dbc.Row(html.H2(children='Mentor: Dr. Nick Mattei'))
     ]),className='text-center',style={'padding-top':'2%','color':'white'}),
+    html.Div([dcc.Dropdown(df.columns,id='yaxis',value='vader')],style={'padding-top':'2%','color':'black'}),
+    html.Div([dcc.Dropdown(df.columns,id='xaxis',value='date')],style={'padding-top':'2%','color':'black'}),
+    dcc.Graph(id='graph',style={'padding-top':'2%','color':'black'}),
     
-    dbc.Row(html.Div(children=arr,)),
+    #dbc.Row(html.Div(children=arr,)),
         
     
 ],style=css_dict['page'])
-                          
+@app.callback(
+    Output('graph', 'figure'),
+    [Input('xaxis', 'value'),
+     Input('yaxis', 'value')])
+def update_graph(xaxis_name='date', yaxis_name='vader'):
+    return px.line(df, x=xaxis_name, y=yaxis_name,height=500,width=800)
                         
 
 if __name__ ==  '__main__':
