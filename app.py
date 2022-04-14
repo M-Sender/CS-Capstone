@@ -7,6 +7,10 @@ import dash_bootstrap_components as dbc
 app = Dash(__name__,external_stylesheets=[dbc.themes.BOOTSTRAP])
 server = app.server
 df = pd.read_csv('covid_US_full_by_day.csv') #https://raw.githubusercontent.com/M-Sender/CS-Capstone/master/covid_US_full_by_day.csv?token=GHSAT0AAAAAABTHEWZ4OUNHU6ESH2TYWTCQYSV4G3A
+arr = []
+for i in df.columns:
+    if i != 'date':
+        arr.append(dcc.Graph(figure=px.line(df, x='date', y=i,height=500,width=800)))
 css_dict = {
     'page': {
         'backgroundColor': 'black',
@@ -62,7 +66,8 @@ app.layout = html.Div(children=[
         
         
     ])),
-    dcc.Graph(figure=px.scatter(df, x='date', y='vader', hover_data=['vader'],height=500,width=800)),
+    dcc.Graph(figure=px.line(df, x='date', y='vader', hover_data=['vader'],height=500,width=800)),
+    dbc.Row(html.Div(children=arr,)),
         
     
 ],style=css_dict['page'])
