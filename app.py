@@ -1,3 +1,5 @@
+import matplotlib
+matplotlib.use('Agg')
 from turtle import color
 from dash import Dash, html, dcc, Input, Output
 import os
