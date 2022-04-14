@@ -8,7 +8,7 @@ import dash_bootstrap_components as dbc
 
 app = Dash(__name__,external_stylesheets=[dbc.themes.BOOTSTRAP])
 server = app.server
-df = pd.read_csv('covid_US_full_by_day.csv') #https://raw.githubusercontent.com/M-Sender/CS-Capstone/master/covid_US_full_by_day.csv?token=GHSAT0AAAAAABTHEWZ4OUNHU6ESH2TYWTCQYSV4G3A
+df = pd.read_csv('https://raw.githubusercontent.com/M-Sender/CS-Capstone/master/covid_US_full_by_day.csv') #https://raw.githubusercontent.com/M-Sender/CS-Capstone/master/covid_US_full_by_day.csv?token=GHSAT0AAAAAABTHEWZ4OUNHU6ESH2TYWTCQYSV4G3A
 arr = []
 for i in df.columns:
     if i != 'date':
