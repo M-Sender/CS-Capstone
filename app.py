@@ -62,6 +62,7 @@ app.layout = html.Div(children=[
         
         
     ])),
+    dcc.Graph(figure=px.scatter(df, x='date', y='vader', hover_data=['vader'],height=500,width=800)),
         
     
 ],style=css_dict['page'])
