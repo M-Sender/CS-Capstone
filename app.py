@@ -39,7 +39,7 @@ def heading(text,style='heading'):
 def paragraph(text,style='paragraph'):
     return html.P(text, style=css_dict[style])
 metricExpl = {
-    'vader':'Vader Sentiment Score',
+    'vader':'Vader',
     'date':'Date',
     'polarity':'Polarity',
     'dancibility':'Dancibility',
@@ -60,8 +60,9 @@ app.layout = html.Div(children=[
         dbc.Row(html.H2(children='Sam Broth and Max Sender')),
         dbc.Row(html.H2(children='Mentor: Dr. Nick Mattei'))
     ]),className='text-center',style={'padding-top':'2%','color':'white'}),
-    html.Div([dcc.Dropdown(df.columns,id='yaxis',value='vader')],style={'padding-top':'2%','color':'black'}),
-    html.Div([dcc.Dropdown(df.columns,id='xaxis',value='date')],style={'padding-top':'2%','color':'black'}),
+    html.Div(dbc.Row(children=[dcc.Dropdown(df.columns,id='yaxis',value='vader',style={'width':'50%','text-align':'center','padding-left':'25%'}),dcc.Dropdown(df.columns,id='xaxis',value='date',style={'width':'50%','text-align':'center','padding-left':'25%'})],style={'padding-top':'2%','color':'black'})),
+        
+    
     html.Div([dcc.RadioItems(id='graphType',options=[{'label':'Line','value':'line'},{'label':'scatter','value':'scatter'}],value='line')],style={'padding-top':'2%','color':'white'}),
     html.Div(id='metricText',style={'padding-top':'2%','color':'white'}),
     dcc.Graph(id='graph',style={'padding-top':'2%','color':'black'}),
@@ -86,7 +87,7 @@ def update_graph(xaxis_name='date', yaxis_name='vader', graphType='line'):
      Input('yaxis', 'value')]
 )
 def update_text(xaxis_name='date', yaxis_name='vader'):
-    retStr = '{xaxis} is being graphed on the x-axis and is displaying the {xaxis_exp}. On the y-axis, {yaxis} is being graphed and is displaying the {yaxis_exp}'.format(xaxis=xaxis_name[0].upper()+xaxis_name[1:],xaxis_exp=metricExpl[xaxis_name],yaxis=yaxis_name,yaxis_exp=metricExpl[yaxis_name])
+    retStr = '{xaxis} is being graphed on the x-axis and is displaying the {xaxis_exp}. On the y-axis, {yaxis} is being graphed and is displaying the {yaxis_exp}.'.format(xaxis=xaxis_name[0].upper()+xaxis_name[1:],xaxis_exp=metricExpl[xaxis_name],yaxis=yaxis_name,yaxis_exp=metricExpl[yaxis_name])
     return   retStr
 
 if __name__ ==  '__main__':
