@@ -23,7 +23,7 @@ df_post = df[df['date']>f('03/10/2020')]
 
 css_dict = {
     'page': {
-        'backgroundColor': 'blue',
+        'backgroundColor':'#40E0D0',
         'fontFamily': 'sans-serif',
     },
     'heading': {
@@ -60,13 +60,16 @@ metricExpl = {
     'tempo':'Tempo',
     
 }
+
+def make_fig(metric,metricText):
+    return px.line(df,x='date',y=metric,title=metricText,height=400,width=300)
 app.layout = html.Div(children=[
     
     dbc.Row(html.Div(children=[#HEADER
         dbc.Row(html.H1(children='Music Trends During the Pandemic')),
         dbc.Row(html.H2(children='Sam Broth and Max Sender')),
         dbc.Row(html.H2(children='Mentor: Dr. Nick Mattei'))
-    ]),className='text-center',style={'padding-top':'2%','color':'white','backgroundColor':'black'}),#HEADER END______
+    ]),className='text-center',style={'padding-top':'2%','color':'white'}),#HEADER END______
     
     #BEGIN DUAL PAGE
     html.Div(children=[
@@ -74,10 +77,23 @@ app.layout = html.Div(children=[
     #left side
             html.Div(dbc.Row(children=[dcc.Dropdown(df.columns,id='yaxis',value='vader',style={'width':'50%','text-align':'center','padding-left':'25%'})],style={'padding-top':'2%','color':'black'})),
             html.Div([ html.Div(id='metricText',style={'padding-top':'2%','color':'black'})]),
-            dcc.Graph(id='graph',style={'padding-top':'2%','color':'white'}),],width=9),
+            dcc.Graph(id='graph',style={'padding-top':'2%','color':'white'}),],width=9,style={'backgroundColor':'white'}),
                           
                           #Right side
-        dbc.Col(children=[html.P('cool stuff')],width=3,style={'backgroundColor':'black'})]),
+        dbc.Col(children=[
+            dbc.Row(children=[html.P(children='Some Fun Stuff:')],style={'padding-top':'2%','color':'white'}),
+            dcc.Graph(figure= make_fig('symptoms: (United States)','Symptoms Search Frequency')),
+            dcc.Graph(figure= make_fig('vader_neg','Symptoms Search Frequency')),
+            dcc.Graph(figure= make_fig('subjectivity','Symptoms Search Frequency')),
+            dcc.Graph(figure= make_fig('polarity','Symptoms Search Frequency')),
+            dcc.Graph(figure= make_fig('vader_pos','Symptoms Search Frequency')),
+            dcc.Graph(figure= make_fig('valence','Symptoms Search Frequency')),
+            dcc.Graph(figure= make_fig('duration_ms','Symptoms Search Frequency')),
+            
+            
+            
+            
+            ],width=3,style={'backgroundColor':'black'})]),
         
         ]),
 
