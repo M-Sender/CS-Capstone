@@ -1,4 +1,3 @@
-from turtle import color
 import matplotlib
 from matplotlib.pyplot import legend
 matplotlib.use('Agg')
