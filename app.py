@@ -36,7 +36,19 @@ css_dict = {
         'padding-left':'7%',
         'padding-right':'7%',
         'font-size':'120%',
-    }
+    },
+    'dropdown_menu': {
+        'text-align':'center',
+        'padding-left':'25%',
+        'padding-top':'7%',
+        },
+    'metricText': {
+        
+    },
+    'graph_container': {
+        'padding-top':'2%',
+        'color':'white',
+        },
 }
 
 
@@ -57,6 +69,7 @@ metricExpl = {
     'subjectivity':'Subjectivity',
     'valence':'Valence',
     'tempo':'Tempo',
+    'energy':'Energy',
     
 }
 
@@ -74,11 +87,15 @@ app.layout = html.Div(children=[
     html.Div(children=[
         dbc.Row(children=[dbc.Col(children=[        
     #left side
-            html.Div(dbc.Row(children=[dcc.Dropdown(df.columns,id='yaxis',value='vader',style={'width':'50%','text-align':'center','padding-left':'25%'})],style={'padding-top':'2%','color':'black'})),
-            html.Div([ html.Div(id='metricText',style={'padding-top':'2%','color':'black'})]),
-            dcc.Graph(id='graph',style={'padding-top':'2%','color':'white'}),],width=9,style={'backgroundColor':'white'}),
-                          
-                          #Right side
+            html.Div(dbc.Row(children=[dcc.Dropdown(df.columns,id='yaxis_spotify',value='energy',style=css_dict['dropdown_menu'])])),
+            html.Div([ html.Div(id='spotifyText',style=css_dict['metricText'],)]),
+            dcc.Graph(id='graph_spotify',style=css_dict['graph_container']),
+            
+            html.Div(dbc.Row(children=[dcc.Dropdown(df.columns,id='yaxis_sentiment',value='vader',style=css_dict['dropdown_menu'])],style={'padding-top':'2%','color':'black'})),
+            html.Div([ html.Div(id='sentimentText',style={'padding-top':'2%','color':'black'})]),
+            dcc.Graph(id='graph_sentiment',style={'padding-top':'2%','color':'white'}),],width=9,style={'backgroundColor':'white'}),     
+        
+         #Right side
         dbc.Col(children=[
             dbc.Row(children=[html.P(children='Some Fun Stuff:')],style={'padding-top':'2%','color':'white'}),
             dcc.Graph(figure= make_fig('symptoms: (United States)','Symptoms Search Frequency')),
@@ -88,10 +105,7 @@ app.layout = html.Div(children=[
             dcc.Graph(figure= make_fig('vader_pos','Symptoms Search Frequency')),
             dcc.Graph(figure= make_fig('valence','Symptoms Search Frequency')),
             dcc.Graph(figure= make_fig('duration_ms','Symptoms Search Frequency')),
-            
-            
-            
-            
+
             ],width=3,style={'backgroundColor':'black'})]),
         
         ]),
@@ -102,9 +116,10 @@ app.layout = html.Div(children=[
     
 ],style=css_dict['page'])
 @app.callback(
-    Output('graph', 'figure'),
-    Input('yaxis', 'value'))
-def update_graph(yaxis_name='vader'):
+    [Output('graph_spotify', 'figure'),
+     Output('spotifyText', 'children')],
+    Input('yaxis_spotify', 'value'))
+def update_spotify(yaxis_name='energy'):
     fig = make_subplots(rows=1,cols=2,shared_yaxes=True,vertical_spacing=0.1,subplot_titles=('Pre-pandemic','Pandemic'))
     fig.add_trace(go.Scatter(x=df_pre['date'],y=df_pre[yaxis_name],mode='lines',name=yaxis_name),row=1,col=1)
     fig.add_trace(go.Scatter(x=df_post['date'],y=df_post[yaxis_name],mode='lines',name=yaxis_name),row=1,col=2)
@@ -112,8 +127,21 @@ def update_graph(yaxis_name='vader'):
     fig.add_hline(y=df_pre[yaxis_name].mean(),row=1,col=1)
     fig.add_hline(y=df_post[yaxis_name].mean(),row=1,col=2)
         #return px.line(df, x=xaxis_name, y=yaxis_name,height=500,width=800)
-    return fig
+    return [fig,metricExpl[yaxis_name]]
         #return px.scatter(df, x=xaxis_name, y=yaxis_name,trendline='lowess' ,height=500,width=800)
+@app.callback(
+    [Output('graph_sentiment', 'figure'),
+     Output('sentimentText', 'children')],
+    Input('yaxis_sentiment', 'value'))
+def update_spotify(yaxis_name='vader'):
+    fig = make_subplots(rows=1,cols=2,shared_yaxes=True,vertical_spacing=0.1,subplot_titles=('Pre-pandemic','Pandemic'))
+    fig.add_trace(go.Scatter(x=df_pre['date'],y=df_pre[yaxis_name],mode='lines',name=yaxis_name),row=1,col=1)
+    fig.add_trace(go.Scatter(x=df_post['date'],y=df_post[yaxis_name],mode='lines',name=yaxis_name),row=1,col=2)
+    fig.update_layout(title_text=yaxis_name,xaxis_title='date',yaxis_title=yaxis_name,showlegend=False)
+    fig.add_hline(y=df_pre[yaxis_name].mean(),row=1,col=1)
+    fig.add_hline(y=df_post[yaxis_name].mean(),row=1,col=2)
+        #return px.line(df, x=xaxis_name, y=yaxis_name,height=500,width=800)
+    return [fig,metricExpl[yaxis_name]]
 '''@app.callback(
     Output('metricText', 'children'),
     [Input('xaxis', 'value'),
