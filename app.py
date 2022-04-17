@@ -1,5 +1,5 @@
 import matplotlib
-from matplotlib.pyplot import legend
+from matplotlib.pyplot import legend, text
 matplotlib.use('Agg')
 from dash import Dash, html, dcc, Input, Output
 import os
@@ -13,11 +13,12 @@ f = partial(pd.to_datetime,yearfirst=True)
 
 
 app = Dash(__name__,external_stylesheets=[dbc.themes.BOOTSTRAP])
+app.title = 'Music Trends During the Pandemic'
 server = app.server
 df = pd.read_csv('covid_US_full_by_day.csv')
-df['date'] = pd.to_datetime(df['date'],dayfirst=True)
-df_pre = df[df['date']<=f('03/10/2020')]
-df_post = df[df['date']>f('03/10/2020')]
+df['Date'] = pd.to_datetime(df['Date'],dayfirst=True)
+df_pre = df[df['Date']<=f('03/10/2020')]
+df_post = df[df['Date']>f('03/10/2020')]
 
 
 css_dict = {
@@ -27,10 +28,7 @@ css_dict = {
     },
     'heading': {
         'text-align':'center',
-        'text-decoration':'underline',
-        'margin-top':'7%',
-        'color':'#86C232',
-        'margin-bottom':'2%'},
+        },
     'paragraph': {
         'color':'rgb(157, 170, 179)',
         'padding-left':'7%',
@@ -41,6 +39,7 @@ css_dict = {
         'text-align':'center',
         'margin-top':'2%',
         'width':'50%',
+        'color':'black'
         },
     'metricText': {
         'margin-top':'2%',
@@ -58,24 +57,49 @@ def heading(text,style='heading'):
 def paragraph(text,style='paragraph'):
     return html.P(text, style=css_dict[style])
 metricExpl = {
-    'vader':'VADER (Valence Aware Dictionary and sEntiment Reasoner) is a lexicon and rule-based sentiment analysis tool that is specifically attuned to sentiments expressed in social media, and works well on texts from other domains.',
-    'polarity':'The expression that determines the sentimental aspect of an opinion. In textual data, the result of sentiment analysis can be determined for each entity in the sentence, document or sentence. The sentiment polarity can be determined as positive, negative and neutral.',
-    'danceability':'How danceable the track is (ranging from 0 to 1).',
-    'subjectivity':'How subjective the track is (ranging from 0 to 1).',
-    'vader_compound':'Vader Compound',
-    'vader_neg':'How negative the text is (ranging from -1 to 1).',
-    'vader_neu':'How neutral the text is (ranging from -1 to 1).',
-    'vader_pos':'How positive the text is (ranging from -1 to 1).',
-    'valence':'relative mood of the song',
-    'tempo':'Tempo/pace of the song',
-    'energy':'how energetic the song is'
+    'VADER':'VADER (Valence Aware Dictionary and sEntiment Reasoner) is a lexicon and rule-based sentiment analysis tool that is specifically attuned to sentiments expressed in social media, and works well on texts from other domains.',
+    'Polarity':'The expression that determines the sentimental aspect of an opinion. In textual data, the result of sentiment analysis can be determined for each entity in the sentence, document or sentence. The sentiment polarity can be determined as positive, negative and neutral.',
+    'Danceability':'According to Spotify\'s Web API: "Danceability describes how suitable a track is for dancing based on a combination of musical elements including tempo, rhythm stability, beat strength, and overall regularity. A value of 0.0 is least danceable and 1.0 is most danceable."',
+    'Subjectivity':'How subjective the lyrics are (ranging from 0 to 1).',
+    'VADER (Negative)':'How negative the lyrics are (ranging from -1 to 1).',
+    'VADER (Neutral)':'How neutral the lyrics are (ranging from -1 to 1).',
+    'VADER (Positive)':'How positive the lyrics are (ranging from -1 to 1).',
+    'Valence':'According to Spotify\'s Web API: "A measure from 0.0 to 1.0 describing the musical positiveness conveyed by a track. Tracks with high valence sound more positive (e.g. happy, cheerful, euphoric), while tracks with low valence sound more negative (e.g. sad, depressed, angry)."',
+    'Tempo':'According to Spotify\'s Web API: "The overall estimated tempo of a track in beats per minute (BPM). In musical terminology, tempo is the speed or pace of a given piece and derives directly from the average beat duration."',
+    'Energy':'According to Spotify\'s Web API: "Energy is a measure from 0.0 to 1.0 and represents a perceptual measure of intensity and activity. Typically, energetic tracks feel fast, loud, and noisy. For example, death metal has high energy, while a Bach prelude scores low on the scale. Perceptual features contributing to this attribute include dynamic range, perceived loudness, timbre, onset rate, and general entropy."',
+    'Duration':'According to Spotify\'s Web API: "The duration of the track in milliseconds."',
+    'Loudness': 'According to Spotify\'s Web API: "The overall loudness of a track in decibels (dB). Loudness values are averaged across the entire track and are useful for comparing relative loudness of tracks. Loudness is the quality of a sound that is the primary psychological correlate of physical strength (amplitude). Values typically range between -60 and 0 db."',
+    'Mode':'According to Spotify\'s Web API: "Mode indicates the modality (major or minor) of a track, the type of scale from which its melodic content is derived. Major is represented by 1 and minor is 0."',
+    'Speechiness': "How sppechy the song is.",
+    'Acousticness':'According to Spotify\'s Web API: "A confidence measure from 0.0 to 1.0 of whether the track is acoustic. 1.0 represents high confidence the track is acoustic."',
+    'Instrumentalness':"How instrumental the song is.",
+    'Liveness':'According to Spotify\'s Web API: "Detects the presence of an audience in the recording. Higher liveness values represent an increased probability that the track was performed live. A value above 0.8 provides strong likelihood that the track is live."',
+
     
 }
 
-spotify_metrics = ['duration_ms','danceability','energy','key','loudness','mode','speechiness','acousticness','instrumentalness','liveness','valence','tempo','time_signature']
-sentiment_metrics = ['sentiment','polarity','subjectivity','vader','vader_pos','vader_neg','vader_neut']
+spotify_metrics = ['Duration','Danceability','Energy','Key','Loudness','Mode','Speechiness','Acousticness','Instrumentalness','Liveness','Valence','Tempo']
+sentiment_metrics = ['Sentiment','Polarity','Subjectivity','VADER','VADER (Positive)','Vader (Negative)','VADER (Neutral)']
+metContainer = {'Spotify':spotify_metrics,'sentiment':sentiment_metrics}
+metDef = {'Spotify':'Energy','sentiment':'VADER'}
 def make_fig(metric,metricText):
-    return px.line(df,x='date',y=metric,title=metricText,height=400,width=300)
+    return px.line(df,x='Date',y=metric,title=metricText,height=400,width=300)
+
+def graph_layout(collection):
+    ret_lay = html.Div([
+    dbc.Container([
+            html.Div(
+                html.H3(children='Select a '+collection+' metric to explore:',className='display-4',style=css_dict['heading'])),
+            html.Div(
+                dbc.Row(children=[dcc.Dropdown(metContainer[collection],id='yaxis_'+collection,value=metDef[collection],style=css_dict['dropdown_menu'])],justify='center',align='center')),
+            dcc.Graph(id='graph_'+collection,style=css_dict['graph_container']),
+            html.Div([ html.Div(id=collection+'Text',style=css_dict['metricText'],className='lead')])],fluid=True,className='py-3')],className="p-3 bg-dark rounded-3 text-white p-5")
+    return ret_lay
+def right_jumbo(metric,metricName):
+    html.Div([
+        dcc.Graph(figure= make_fig(metric,metricName)),
+    ])
+    pass
 app.layout = html.Div(children=[
     
     dbc.Row(html.Div(children=[#HEADER
@@ -83,22 +107,16 @@ app.layout = html.Div(children=[
         dbc.Row(html.H2(children='Sam Broth and Max Sender')),
         dbc.Row(html.H2(children='Mentor: Dr. Nick Mattei'))
     ]),className='text-center',style={'padding-top':'2%','color':'white'}),#HEADER END______
-    
+
     #BEGIN DUAL PAGE
     html.Div(children=[
         dbc.Row(children=[dbc.Col(children=[        
-    #left side
-    
-            html.Div(html.H3(children='Select a spotify metric to explore:'),style={'text-align':'center','margin-top':'2%'}),
-            html.Div(
-            dbc.Row(children=[dcc.Dropdown(spotify_metrics,id='yaxis_spotify',value='energy',style=css_dict['dropdown_menu'])],justify='center',align='center')),
-            html.Div([ html.Div(id='spotifyText',style=css_dict['metricText'],)]),
-            dcc.Graph(id='graph_spotify',style=css_dict['graph_container']),
+    #left side            
+            graph_layout('Spotify'),
+            html.Hr(className='my-2'),
+            graph_layout('sentiment'),
             
-            html.Div(html.H3(children='Select a sentiment metric to explore:'),style={'text-align':'center','margin-top':'2%'}),
-            html.Div(dbc.Row(children=[dcc.Dropdown(sentiment_metrics,id='yaxis_sentiment',value='vader',style=css_dict['dropdown_menu'])],justify='center')),
-            html.Div([ html.Div(id='sentimentText',style=css_dict['metricText'])]),
-            dcc.Graph(id='graph_sentiment',style=css_dict['graph_container']),]
+            ]
                                   
                                   
             ,width=9,style={'backgroundColor':'white'}),     
@@ -106,13 +124,8 @@ app.layout = html.Div(children=[
          #Right side
         dbc.Col(children=[
             dbc.Row(children=[html.P(children='Some Fun Stuff:')],style={'padding-top':'2%','color':'white'}),
-            dcc.Graph(figure= make_fig('symptoms: (United States)','Symptoms Search Frequency')),
-            dcc.Graph(figure= make_fig('vader_neg','Symptoms Search Frequency')),
-            dcc.Graph(figure= make_fig('subjectivity','Symptoms Search Frequency')),
-            dcc.Graph(figure= make_fig('polarity','Symptoms Search Frequency')),
-            dcc.Graph(figure= make_fig('vader_pos','Symptoms Search Frequency')),
-            dcc.Graph(figure= make_fig('valence','Symptoms Search Frequency')),
-            dcc.Graph(figure= make_fig('duration_ms','Symptoms Search Frequency')),
+            dcc.Graph(figure= make_fig('Search Term: COVID','Symptoms Search Frequency')),
+            dcc.Graph(figure= make_fig('Search Term: Symptoms','Symptoms Search Frequency')),
 
             ],width=3,style={'backgroundColor':'black'})]),
         
@@ -125,30 +138,27 @@ app.layout = html.Div(children=[
 ],style=css_dict['page'])
 @app.callback(
     [Output('graph_spotify', 'figure'),
-     Output('spotifyText', 'children')],
-    Input('yaxis_spotify', 'value'))
-def update_spotify(yaxis_name='energy'):
+     Output('SpotifyText', 'children')],
+    Input('yaxis_Spotify', 'value'))
+def update_spotify(yaxis_name='Energy'):
     fig = make_subplots(rows=1,cols=2,shared_yaxes=True,vertical_spacing=0.1,subplot_titles=('Pre-pandemic','Pandemic'))
-    fig.add_trace(go.Scatter(x=df_pre['date'],y=df_pre[yaxis_name],mode='lines',name=yaxis_name),row=1,col=1)
-    fig.add_trace(go.Scatter(x=df_post['date'],y=df_post[yaxis_name],mode='lines',name=yaxis_name),row=1,col=2)
-    fig.update_layout(xaxis_title='date',yaxis_title=str(yaxis_name[0].upper()+yaxis_name[1:]),showlegend=False)
+    fig.add_trace(go.Scatter(x=df_pre['Date'],y=df_pre[yaxis_name],mode='lines',name=yaxis_name),row=1,col=1)
+    fig.add_trace(go.Scatter(x=df_post['Date'],y=df_post[yaxis_name],mode='lines',name=yaxis_name),row=1,col=2)
+    fig.update_layout(xaxis_title='Date',yaxis_title=yaxis_name,showlegend=False)
     fig.add_hline(y=df_pre[yaxis_name].mean(),row=1,col=1)
     fig.add_hline(y=df_post[yaxis_name].mean(),row=1,col=2)
-        #return px.line(df, x=xaxis_name, y=yaxis_name,height=500,width=800)
     return [fig,metricExpl[yaxis_name]]
-        #return px.scatter(df, x=xaxis_name, y=yaxis_name,trendline='lowess' ,height=500,width=800)
 @app.callback(
     [Output('graph_sentiment', 'figure'),
      Output('sentimentText', 'children')],
     Input('yaxis_sentiment', 'value'))
-def update_sentiment(yaxis_name='vader'):
+def update_sentiment(yaxis_name='VADER'):
     fig = make_subplots(rows=1,cols=2,shared_yaxes=True,vertical_spacing=0.1,subplot_titles=('Pre-pandemic','Pandemic'))
-    fig.add_trace(go.Scatter(x=df_pre['date'],y=df_pre[yaxis_name],mode='lines',name=yaxis_name),row=1,col=1)
-    fig.add_trace(go.Scatter(x=df_post['date'],y=df_post[yaxis_name],mode='lines',name=yaxis_name),row=1,col=2)
-    fig.update_layout(xaxis_title='date',yaxis_title=str(yaxis_name[0].upper()+yaxis_name[1:]),showlegend=False)
+    fig.add_trace(go.Scatter(x=df_pre['Date'],y=df_pre[yaxis_name],mode='lines',name=yaxis_name),row=1,col=1)
+    fig.add_trace(go.Scatter(x=df_post['Date'],y=df_post[yaxis_name],mode='lines',name=yaxis_name),row=1,col=2)
+    fig.update_layout(xaxis_title='Date',yaxis_title=yaxis_name,showlegend=False)
     fig.add_hline(y=df_pre[yaxis_name].mean(),row=1,col=1)
     fig.add_hline(y=df_post[yaxis_name].mean(),row=1,col=2)
-        #return px.line(df, x=xaxis_name, y=yaxis_name,height=500,width=800)
     return [fig,metricExpl[yaxis_name]]
 
 if __name__ ==  '__main__':
