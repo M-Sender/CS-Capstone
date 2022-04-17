@@ -39,11 +39,12 @@ css_dict = {
     },
     'dropdown_menu': {
         'text-align':'center',
-        'padding-left':'25%',
-        'padding-top':'7%',
+        'margin-top':'2%',
+        'width':'50%',
         },
     'metricText': {
-        
+        'margin-top':'2%',
+        'text-align':'center',
     },
     'graph_container': {
         'padding-top':'2%',
@@ -57,22 +58,22 @@ def heading(text,style='heading'):
 def paragraph(text,style='paragraph'):
     return html.P(text, style=css_dict[style])
 metricExpl = {
-    'vader':'Vader',
-    'date':'Date',
-    'polarity':'Polarity',
-    'dancibility':'Dancibility',
-    'subjectivity':'Subjectivity',
+    'vader':'VADER (Valence Aware Dictionary and sEntiment Reasoner) is a lexicon and rule-based sentiment analysis tool that is specifically attuned to sentiments expressed in social media, and works well on texts from other domains.',
+    'polarity':'The expression that determines the sentimental aspect of an opinion. In textual data, the result of sentiment analysis can be determined for each entity in the sentence, document or sentence. The sentiment polarity can be determined as positive, negative and neutral.',
+    'danceability':'How danceable the track is (ranging from 0 to 1).',
+    'subjectivity':'How subjective the track is (ranging from 0 to 1).',
     'vader_compound':'Vader Compound',
-    'vader_neg':'Vader Negative',
-    'vader_neu':'Vader Neutral',
-    'vader_pos':'Vader Positive',
-    'subjectivity':'Subjectivity',
-    'valence':'Valence',
-    'tempo':'Tempo',
-    'energy':'Energy',
+    'vader_neg':'How negative the text is (ranging from -1 to 1).',
+    'vader_neu':'How neutral the text is (ranging from -1 to 1).',
+    'vader_pos':'How positive the text is (ranging from -1 to 1).',
+    'valence':'relative mood of the song',
+    'tempo':'Tempo/pace of the song',
+    'energy':'how energetic the song is'
     
 }
 
+spotify_metrics = ['duration_ms','danceability','energy','key','loudness','mode','speechiness','acousticness','instrumentalness','liveness','valence','tempo','time_signature']
+sentiment_metrics = ['sentiment','polarity','subjectivity','vader','vader_pos','vader_neg','vader_neut']
 def make_fig(metric,metricText):
     return px.line(df,x='date',y=metric,title=metricText,height=400,width=300)
 app.layout = html.Div(children=[
@@ -87,13 +88,20 @@ app.layout = html.Div(children=[
     html.Div(children=[
         dbc.Row(children=[dbc.Col(children=[        
     #left side
-            html.Div(dbc.Row(children=[dcc.Dropdown(df.columns,id='yaxis_spotify',value='energy',style=css_dict['dropdown_menu'])])),
+    
+            html.Div(html.H3(children='Select a spotify metric to explore:'),style={'text-align':'center','margin-top':'2%'}),
+            html.Div(
+            dbc.Row(children=[dcc.Dropdown(spotify_metrics,id='yaxis_spotify',value='energy',style=css_dict['dropdown_menu'])],justify='center',align='center')),
             html.Div([ html.Div(id='spotifyText',style=css_dict['metricText'],)]),
             dcc.Graph(id='graph_spotify',style=css_dict['graph_container']),
             
-            html.Div(dbc.Row(children=[dcc.Dropdown(df.columns,id='yaxis_sentiment',value='vader',style=css_dict['dropdown_menu'])],style={'padding-top':'2%','color':'black'})),
-            html.Div([ html.Div(id='sentimentText',style={'padding-top':'2%','color':'black'})]),
-            dcc.Graph(id='graph_sentiment',style={'padding-top':'2%','color':'white'}),],width=9,style={'backgroundColor':'white'}),     
+            html.Div(html.H3(children='Select a sentiment metric to explore:'),style={'text-align':'center','margin-top':'2%'}),
+            html.Div(dbc.Row(children=[dcc.Dropdown(sentiment_metrics,id='yaxis_sentiment',value='vader',style=css_dict['dropdown_menu'])],justify='center')),
+            html.Div([ html.Div(id='sentimentText',style=css_dict['metricText'])]),
+            dcc.Graph(id='graph_sentiment',style=css_dict['graph_container']),]
+                                  
+                                  
+            ,width=9,style={'backgroundColor':'white'}),     
         
          #Right side
         dbc.Col(children=[
@@ -123,7 +131,7 @@ def update_spotify(yaxis_name='energy'):
     fig = make_subplots(rows=1,cols=2,shared_yaxes=True,vertical_spacing=0.1,subplot_titles=('Pre-pandemic','Pandemic'))
     fig.add_trace(go.Scatter(x=df_pre['date'],y=df_pre[yaxis_name],mode='lines',name=yaxis_name),row=1,col=1)
     fig.add_trace(go.Scatter(x=df_post['date'],y=df_post[yaxis_name],mode='lines',name=yaxis_name),row=1,col=2)
-    fig.update_layout(title_text=yaxis_name,xaxis_title='date',yaxis_title=yaxis_name,showlegend=False)
+    fig.update_layout(xaxis_title='date',yaxis_title=str(yaxis_name[0].upper()+yaxis_name[1:]),showlegend=False)
     fig.add_hline(y=df_pre[yaxis_name].mean(),row=1,col=1)
     fig.add_hline(y=df_post[yaxis_name].mean(),row=1,col=2)
         #return px.line(df, x=xaxis_name, y=yaxis_name,height=500,width=800)
@@ -133,23 +141,15 @@ def update_spotify(yaxis_name='energy'):
     [Output('graph_sentiment', 'figure'),
      Output('sentimentText', 'children')],
     Input('yaxis_sentiment', 'value'))
-def update_spotify(yaxis_name='vader'):
+def update_sentiment(yaxis_name='vader'):
     fig = make_subplots(rows=1,cols=2,shared_yaxes=True,vertical_spacing=0.1,subplot_titles=('Pre-pandemic','Pandemic'))
     fig.add_trace(go.Scatter(x=df_pre['date'],y=df_pre[yaxis_name],mode='lines',name=yaxis_name),row=1,col=1)
     fig.add_trace(go.Scatter(x=df_post['date'],y=df_post[yaxis_name],mode='lines',name=yaxis_name),row=1,col=2)
-    fig.update_layout(title_text=yaxis_name,xaxis_title='date',yaxis_title=yaxis_name,showlegend=False)
+    fig.update_layout(xaxis_title='date',yaxis_title=str(yaxis_name[0].upper()+yaxis_name[1:]),showlegend=False)
     fig.add_hline(y=df_pre[yaxis_name].mean(),row=1,col=1)
     fig.add_hline(y=df_post[yaxis_name].mean(),row=1,col=2)
         #return px.line(df, x=xaxis_name, y=yaxis_name,height=500,width=800)
     return [fig,metricExpl[yaxis_name]]
-'''@app.callback(
-    Output('metricText', 'children'),
-    [Input('xaxis', 'value'),
-     Input('yaxis', 'value')]
-)
-def update_text(xaxis_name='date', yaxis_name='vader'):
-    retStr = '{xaxis} is being graphed on the x-axis and is displaying the {xaxis_exp}. On the y-axis, {yaxis} is being graphed and is displaying the {yaxis_exp}.'.format(xaxis=xaxis_name[0].upper()+xaxis_name[1:],xaxis_exp=metricExpl[xaxis_name],yaxis=yaxis_name,yaxis_exp=metricExpl[yaxis_name])
-    return   retStr'''
 
 if __name__ ==  '__main__':
     app.run_server(debug=True)
