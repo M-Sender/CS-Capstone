@@ -23,8 +23,10 @@ df_post = df[df['Date']>f('03/10/2020')]
 
 css_dict = {
     'page': {
-        'backgroundColor':'#40E0D0',
+        'backgroundColor':'teal',
         'fontFamily': 'sans-serif',
+        'overflow-x':'hidden',
+        'max-width':'100%',
     },
     'heading': {
         'text-align':'center',
@@ -49,6 +51,9 @@ css_dict = {
         'padding-top':'2%',
         'color':'white',
         },
+    'right_jumbo': {
+        'left':'200px',
+    }
 }
 
 
@@ -96,10 +101,12 @@ def graph_layout(collection):
             html.Div([ html.Div(id=collection+'Text',style=css_dict['metricText'],className='lead')])],fluid=True,className='py-3')],className="p-3 bg-dark rounded-3 text-white p-5")
     return ret_lay
 def right_jumbo(metric,metricName):
-    html.Div([
-        dcc.Graph(figure= make_fig(metric,metricName)),
-    ])
-    pass
+    ret_lay = html.Div([
+                dbc.Container([
+                    dcc.Graph(figure= make_fig(metric,metricName)),
+                   ],fluid=True,className='py-3')],className="",style=css_dict['right_jumbo'])            
+    return ret_lay
+
 app.layout = html.Div(children=[
     
     dbc.Row(html.Div(children=[#HEADER
@@ -107,6 +114,7 @@ app.layout = html.Div(children=[
         dbc.Row(html.H2(children='Sam Broth and Max Sender')),
         dbc.Row(html.H2(children='Mentor: Dr. Nick Mattei'))
     ]),className='text-center',style={'padding-top':'2%','color':'white'}),#HEADER END______
+    html.Hr(className='my-2'),
 
     #BEGIN DUAL PAGE
     html.Div(children=[
@@ -119,15 +127,21 @@ app.layout = html.Div(children=[
             ]
                                   
                                   
-            ,width=9,style={'backgroundColor':'white'}),     
+            ,width=9,style={'backgroundColor':'teal'}),     
         
          #Right side
         dbc.Col(children=[
             dbc.Row(children=[html.P(children='Some Fun Stuff:')],style={'padding-top':'2%','color':'white'}),
-            dcc.Graph(figure= make_fig('Search Term: COVID','Symptoms Search Frequency')),
-            dcc.Graph(figure= make_fig('Search Term: Symptoms','Symptoms Search Frequency')),
-
-            ],width=3,style={'backgroundColor':'black'})]),
+            right_jumbo('Search Term: Online Therapy','Search Term: Online Therapy'),
+            html.Hr(className='my-2'),
+            right_jumbo('Search Term: COVID','Search Term: COVID'),
+            html.Hr(className='my-2'),
+            right_jumbo('Search Term: Symptoms','Search Term: Symptoms'),
+            html.Hr(className='my-2'),
+            right_jumbo('Search Term: Vaccine','Search Term: Vaccine'),
+            html.Hr(className='my-2'),
+            right_jumbo('Duration','Duration'),
+            ],width=3,style={'backgroundColor':'teal'})]),
         
         ]),
 
@@ -137,7 +151,7 @@ app.layout = html.Div(children=[
     
 ],style=css_dict['page'])
 @app.callback(
-    [Output('graph_spotify', 'figure'),
+    [Output('graph_Spotify', 'figure'),
      Output('SpotifyText', 'children')],
     Input('yaxis_Spotify', 'value'))
 def update_spotify(yaxis_name='Energy'):
