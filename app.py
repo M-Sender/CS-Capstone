@@ -41,7 +41,8 @@ css_dict = {
         'text-align':'center',
         'margin-top':'2%',
         'width':'50%',
-        'color':'black'
+        'color':'black',
+        'margin-left':'12.5%',
         },
     'metricText': {
         'margin-top':'2%',
@@ -52,7 +53,8 @@ css_dict = {
         'color':'white',
         },
     'right_jumbo': {
-        'left':'200px',
+        'margin-left':'-5%',
+        'height':'17%',
     }
 }
 
@@ -88,7 +90,7 @@ sentiment_metrics = ['Sentiment','Polarity','Subjectivity','VADER','VADER (Posit
 metContainer = {'Spotify':spotify_metrics,'sentiment':sentiment_metrics}
 metDef = {'Spotify':'Energy','sentiment':'VADER'}
 def make_fig(metric,metricText):
-    return px.line(df,x='Date',y=metric,title=metricText,height=400,width=300)
+    return px.line(df,x='Date',y=metric,title=metricText,height=400,width=370)
 
 def graph_layout(collection):
     ret_lay = html.Div([
@@ -103,8 +105,8 @@ def graph_layout(collection):
 def right_jumbo(metric,metricName):
     ret_lay = html.Div([
                 dbc.Container([
-                    dcc.Graph(figure= make_fig(metric,metricName)),
-                   ],fluid=True,className='py-3')],className="",style=css_dict['right_jumbo'])            
+                    dcc.Graph(figure= make_fig(metric,metricName),style={'margin-left':'-35%','margin-top':'-33%'}),
+                   ],fluid=True,className='py-3')],className="p-3 bg-dark rounded-3 text-white p-5",style=css_dict['right_jumbo'])            
     return ret_lay
 
 app.layout = html.Div(children=[
