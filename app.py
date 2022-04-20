@@ -54,7 +54,7 @@ css_dict = {
         },
     'right_jumbo': {
         'margin-left':'-5%',
-        'height':'17%',
+        #'height':'17%',
     }
 }
 
@@ -90,7 +90,7 @@ sentiment_metrics = ['Sentiment','Polarity','Subjectivity','VADER','VADER (Posit
 metContainer = {'Spotify':spotify_metrics,'sentiment':sentiment_metrics}
 metDef = {'Spotify':'Energy','sentiment':'VADER'}
 def make_fig(metric,metricText):
-    return px.line(df,x='Date',y=metric,title=metricText,height=400,width=370)
+    return px.line(df,x='Date',y=metric,title=metricText,height=400,width=300)#370
 
 def graph_layout(collection):
     ret_lay = html.Div([
@@ -105,7 +105,7 @@ def graph_layout(collection):
 def right_jumbo(metric,metricName):
     ret_lay = html.Div([
                 dbc.Container([
-                    dcc.Graph(figure= make_fig(metric,metricName),style={'margin-left':'-35%','margin-top':'-33%'}),
+                    dcc.Graph(figure= make_fig(metric,metricName),), #style={'margin-left':'-35%','margin-top':'-33%'}
                    ],fluid=True,className='py-3')],className="p-3 bg-dark rounded-3 text-white p-5",style=css_dict['right_jumbo'])            
     return ret_lay
 
@@ -129,7 +129,7 @@ app.layout = html.Div(children=[
             ]
                                   
                                   
-            ,width=9,style={'backgroundColor':'teal'}),     
+            ,width=8,style={'backgroundColor':'teal'}),     
         
          #Right side
         dbc.Col(children=[
@@ -143,7 +143,7 @@ app.layout = html.Div(children=[
             right_jumbo('Search Term: Vaccine','Search Term: Vaccine'),
             html.Hr(className='my-2'),
             right_jumbo('Duration','Duration'),
-            ],width=3,style={'backgroundColor':'teal'})]),
+            ],width=4,style={'backgroundColor':'teal'})]),
         
         ]),
 
