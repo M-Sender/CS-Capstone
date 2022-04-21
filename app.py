@@ -64,12 +64,13 @@ def heading(text,style='heading'):
 def paragraph(text,style='paragraph'):
     return html.P(text, style=css_dict[style])
 metricExpl = {
+    'Sentiment': 'Our own sentiment analysis evaluation, derived from VADER scores.',
     'VADER':'VADER (Valence Aware Dictionary and sEntiment Reasoner) is a lexicon and rule-based sentiment analysis tool that is specifically attuned to sentiments expressed in social media, and works well on texts from other domains.',
     'Polarity':'The expression that determines the sentimental aspect of an opinion. In textual data, the result of sentiment analysis can be determined for each entity in the sentence, document or sentence. The sentiment polarity can be determined as positive, negative and neutral.',
     'Danceability':'According to Spotify\'s Web API: "Danceability describes how suitable a track is for dancing based on a combination of musical elements including tempo, rhythm stability, beat strength, and overall regularity. A value of 0.0 is least danceable and 1.0 is most danceable."',
     'Subjectivity':'How subjective the lyrics are (ranging from 0 to 1).',
-    'VADER (Negative)':'How negative the lyrics are (ranging from -1 to 1).',
-    'VADER (Neutral)':'How neutral the lyrics are (ranging from -1 to 1).',
+    'VADER (Negative)':'How negative the lyrics are through VADER analysis.',
+    'VADER (Neutral)':'How neutral the lyrics are through VADER analysis.',
     'VADER (Positive)':'How positive the lyrics are (ranging from -1 to 1).',
     'Valence':'According to Spotify\'s Web API: "A measure from 0.0 to 1.0 describing the musical positiveness conveyed by a track. Tracks with high valence sound more positive (e.g. happy, cheerful, euphoric), while tracks with low valence sound more negative (e.g. sad, depressed, angry)."',
     'Tempo':'According to Spotify\'s Web API: "The overall estimated tempo of a track in beats per minute (BPM). In musical terminology, tempo is the speed or pace of a given piece and derives directly from the average beat duration."',
@@ -85,12 +86,15 @@ metricExpl = {
     
 }
 
-spotify_metrics = ['Duration','Danceability','Energy','Key','Loudness','Mode','Speechiness','Acousticness','Instrumentalness','Liveness','Valence','Tempo']
-sentiment_metrics = ['Sentiment','Polarity','Subjectivity','VADER','VADER (Positive)','Vader (Negative)','VADER (Neutral)']
+spotify_metrics = ['Danceability','Energy','Mode','Valence', 'Tempo', 'Loudness']
+sentiment_metrics = ['Sentiment','VADER','VADER (Positive)','VADER (Negative)']
 metContainer = {'Spotify':spotify_metrics,'sentiment':sentiment_metrics}
-metDef = {'Spotify':'Energy','sentiment':'VADER'}
-def make_fig(metric,metricText):
-    return px.line(df,x='Date',y=metric,title=metricText,height=400,width=300)#370
+metDef = {'Spotify':'Danceability','sentiment':'VADER'}
+def make_fig(x,metric,metricText,type='line'):
+    if type == 'line':
+        return px.line(df,x=x,y=metric,title=metricText,height=400,width=300)#370
+    elif type == 'scatter':
+        return px.scatter(df,x=x,y=metric,title=metricText,height=400,width=300,trendline='ols')#370
 
 def graph_layout(collection):
     ret_lay = html.Div([
@@ -102,10 +106,10 @@ def graph_layout(collection):
             dcc.Graph(id='graph_'+collection,style=css_dict['graph_container']),
             html.Div([ html.Div(id=collection+'Text',style=css_dict['metricText'],className='lead')])],fluid=True,className='py-3')],className="p-3 bg-dark rounded-3 text-white p-5")
     return ret_lay
-def right_jumbo(metric,metricName):
+def right_jumbo(x,metric,metricName,type='line'):
     ret_lay = html.Div([
                 dbc.Container([
-                    dcc.Graph(figure= make_fig(metric,metricName),), #style={'margin-left':'-35%','margin-top':'-33%'}
+                    dcc.Graph(figure= make_fig(x,metric,metricName,type),), #style={'margin-left':'-35%','margin-top':'-33%'}
                    ],fluid=True,className='py-3')],className="p-3 bg-dark rounded-3 text-white p-5",style=css_dict['right_jumbo'])            
     return ret_lay
 
@@ -134,15 +138,19 @@ app.layout = html.Div(children=[
          #Right side
         dbc.Col(children=[
             dbc.Row(children=[html.P(children='Some Fun Stuff:')],style={'padding-top':'2%','color':'white'}),
-            right_jumbo('Search Term: Online Therapy','Search Term: Online Therapy'),
+            right_jumbo('Duration','Valence','Valence vs. Song Duration', 'scatter'),
             html.Hr(className='my-2'),
-            right_jumbo('Search Term: COVID','Search Term: COVID'),
+            right_jumbo('New Cases','VADER (Negative)','Negativity vs. New Cases', 'scatter'),
             html.Hr(className='my-2'),
-            right_jumbo('Search Term: Symptoms','Search Term: Symptoms'),
+            #right_jumbo('Date','Search Term: Vaccine','Search Term: Vaccine'),
+            #html.Hr(className='my-2'),
+            #right_jumbo('Search Term: COVID','Search Term: COVID'),
+            #html.Hr(className='my-2'),
+            right_jumbo('Date','Search Term: Symptoms','Search Term: Symptoms'),
             html.Hr(className='my-2'),
-            right_jumbo('Search Term: Vaccine','Search Term: Vaccine'),
+            right_jumbo('Date','Search Term: Online Therapy','Search Term: Online Therapy'), 
             html.Hr(className='my-2'),
-            right_jumbo('Duration','Duration'),
+            #right_jumbo('Duration','Duration'),
             ],width=4,style={'backgroundColor':'teal'})]),
         
         ]),
