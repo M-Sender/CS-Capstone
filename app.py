@@ -127,7 +127,7 @@ app.layout = html.Div(children=[
         dbc.Row(children=[dbc.Col(children=[        
     #left side            
             graph_layout('Spotify'),
-            html.Hr(className='my-2'),
+            html.Hr(className='my-2'), 
             graph_layout('sentiment'),
             
             ]
